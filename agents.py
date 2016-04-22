@@ -128,10 +128,12 @@ class MyAgent(RPSAgent):
         Must return an Action.
         """
         action = Action.r
+        self.checkScaredy()
         self.checkStubborn()
         self.checkSelfCounter()
         self.checkMirror()
         self.checkCounter()
+
 
         # print()
         # print(self.myRecent)
@@ -156,7 +158,6 @@ class MyAgent(RPSAgent):
                 elif self.oppRecent[-1] == Action.p:
                     action = Action.s
             if self.mode == 'mirror':
-                action = Action.r
                 if len(self.myRecent) > 0:
                     if self.myRecent[-1] == Action.r:
                         action = Action.p
@@ -176,8 +177,7 @@ class MyAgent(RPSAgent):
                     stubborn = False
             if stubborn == True:
                 self.mode = "stubborn"
-            else: 
-                self.mode = "counter"
+
 
     def checkSelfCounter(self):
         if len(self.oppRecent) >= self.memory:
@@ -198,13 +198,27 @@ class MyAgent(RPSAgent):
                 self.mode = "mirror"
 
     def checkCounter(self):
-        if len(self.oppRecent) > self.memory:
+        if len(self.oppRecent) >= self.memory:
             counter = True
             for i in range(len(self.oppRecent)-1):
                 if self.beats(self.oppRecent[i+1], self.myRecent[i]) == False:
                     counter = False
             if counter:
                 self.mode = "counter"
+
+    def checkScaredy(self):
+        if len(self.oppRecent) >= self.memory:
+            scaredy = True
+            for i in range(len(self.oppRecent)-1):
+                prevResult = self.beats(self.oppRecent[i], self.myRecent[i])
+                if prevResult == 1:
+                    if self.oppRecent[i+1] != self.oppRecent[i]:
+                        scaredy = False
+                elif prevResult == -1:
+                    if self.oppRecent[i+1] == self.oppRecent[i]:
+                        scaredy = False
+            if scaredy:
+                self.mode = "scaredy"
 
 
     def beats(self, first, second):
