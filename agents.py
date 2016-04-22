@@ -119,7 +119,7 @@ class MyAgent(RPSAgent):
         #The recent moves I have made
         self.myRecent = []
         #The "mode" that we are currently in
-        self.mode = "stubborn"
+        self.mode = "nash"
         pass
     
     def act(self):
