@@ -140,33 +140,73 @@ class MyAgent(RPSAgent):
         # print(self.oppRecent)
         # print()
 
-        print(self.mode)
         if len(self.myRecent) > 1:
+        #any time no action is set, rock is returned
+
             if self.mode == "counter":
                 if self.myRecent[-1] == Action.s:
                     action = Action.p
                 elif self.myRecent[-1] == Action.r:
                     action = Action.s
+
             if self.mode == "selfCounter":
                 if self.oppRecent[-1] == Action.s:
                     action = Action.p
                 elif self.oppRecent[-1] == Action.r:
                     action = Action.s
+
             if self.mode == 'stubborn':
                 if self.oppRecent[-1] == Action.r:
                     action = Action.p
                 elif self.oppRecent[-1] == Action.p:
                     action = Action.s
+
             if self.mode == 'mirror':
                 if len(self.myRecent) > 0:
                     if self.myRecent[-1] == Action.r:
                         action = Action.p
                     elif self.myRecent[-1] == Action.p:
                         action = Action.s
+
+            if self.mode == 'scaredy':
+                prevResult = self.beats(self.oppRecent[-1], self.myRecent[-1])
+                if prevResult: #if we just lost
+                    if self.oppRecent[-1] == Action.p:
+                        action = Action.s
+                    elif self.oppRecent[-1] == Action.r:
+                        action = Action.p
+                else: #if we just won
+                    if self.oppRecent[-1] == Action.s:
+                        action = Action.p
+                    elif self.oppRecent[-1] == Action.r:
+                        action = Action.s
+
+            else: #We are playing a Nash Agent
+                action = self.mostCommon() #get the most common action from oppRecent
+
+
         self.myRecent.append(action)
         if len(self.myRecent) > self.memory:
             self.myRecent.pop(0)
         return action
+
+    #returns the most common action in oppRecent
+    def mostCommon(self):
+        count = [0,0,0]
+        for move in self.oppRecent:
+            if move == Action.r:
+                count[0] = count[0] + 1
+            if move == Action.p:
+                count[1] = count[1] + 1
+            if move == Action.s:
+                count[2] = count[2] + 1
+        biggest = count.index(max(count))
+        if biggest == 0:
+            return Action.r
+        elif biggest == 1:
+            return Action.p
+        else:
+            return Action.s
     
     def checkStubborn(self):
         if len(self.oppRecent) >= self.memory:
@@ -211,10 +251,10 @@ class MyAgent(RPSAgent):
             scaredy = True
             for i in range(len(self.oppRecent)-1):
                 prevResult = self.beats(self.oppRecent[i], self.myRecent[i])
-                if prevResult == 1:
+                if prevResult:
                     if self.oppRecent[i+1] != self.oppRecent[i]:
                         scaredy = False
-                elif prevResult == -1:
+                else:
                     if self.oppRecent[i+1] == self.oppRecent[i]:
                         scaredy = False
             if scaredy:
