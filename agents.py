@@ -127,18 +127,12 @@ class MyAgent(RPSAgent):
         And however you might want to act, do it here.
         Must return an Action.
         """
-        action = Action.r
+        action = Action.r #set rock as the defaul action
         self.checkScaredy()
         self.checkStubborn()
         self.checkSelfCounter()
         self.checkMirror()
         self.checkCounter()
-
-
-        # print()
-        # print(self.myRecent)
-        # print(self.oppRecent)
-        # print()
 
         if len(self.myRecent) > 1:
         #any time no action is set, rock is returned
@@ -149,26 +143,26 @@ class MyAgent(RPSAgent):
                 elif self.myRecent[-1] == Action.r:
                     action = Action.s
 
-            if self.mode == "selfCounter":
+            elif self.mode == "selfCounter":
                 if self.oppRecent[-1] == Action.s:
                     action = Action.p
                 elif self.oppRecent[-1] == Action.r:
                     action = Action.s
 
-            if self.mode == 'stubborn':
+            elif self.mode == 'stubborn':
                 if self.oppRecent[-1] == Action.r:
                     action = Action.p
                 elif self.oppRecent[-1] == Action.p:
                     action = Action.s
 
-            if self.mode == 'mirror':
+            elif self.mode == 'mirror':
                 if len(self.myRecent) > 0:
                     if self.myRecent[-1] == Action.r:
                         action = Action.p
                     elif self.myRecent[-1] == Action.p:
                         action = Action.s
 
-            if self.mode == 'scaredy':
+            elif self.mode == 'scaredy':
                 prevResult = self.beats(self.oppRecent[-1], self.myRecent[-1])
                 if prevResult: #if we just lost
                     if self.oppRecent[-1] == Action.p:
@@ -181,9 +175,12 @@ class MyAgent(RPSAgent):
                     elif self.oppRecent[-1] == Action.r:
                         action = Action.s
 
-            else: #We are playing a Nash Agent
-                action = self.mostCommon() #get the most common action from oppRecent
-
+            else: #We are playing a Nash Agent, or oppRecent is not filled yet
+                mostCommon = self.mostCommon() #get the most common action from oppRecent
+                if mostCommon == Action.p:
+                    action = Action.s
+                elif mostCommon == Action.r:
+                    action = Action.p
 
         self.myRecent.append(action)
         if len(self.myRecent) > self.memory:
